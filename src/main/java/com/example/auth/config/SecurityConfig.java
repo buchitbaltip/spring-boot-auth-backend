@@ -1,7 +1,9 @@
-package com.example.auth.config; // เปลี่ยนให้ตรงกับโปรเจกต์คุณ
+package com.example.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,8 +20,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .cors(Customizer.withDefaults()) // 1. เปิดใช้งาน CORS ระดับ Security
             .csrf(csrf -> csrf.disable()) // ปิด CSRF สำหรับ API
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 2. อนุญาต Preflight (OPTIONS request) ก่อนยิง API จริง
                 .requestMatchers("/api/auth/**").permitAll() // ยอมให้ทุกคนเข้าถึง API หมวด auth ได้
                 .anyRequest().authenticated()
             );
